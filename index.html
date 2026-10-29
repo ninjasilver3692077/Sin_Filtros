@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sin filtros</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app">
+
+    <!-- ============ INICIO ============ -->
+    <section id="screen-home" class="screen active">
+      <h1>Sin filtros</h1>
+      <p class="lead">
+        Un juego para dos. Una persona lee una pregunta abierta y la otra la responde
+        <strong>de forma honesta</strong>. Si no quieres responder, puedes pasar, pero te tocará un reto.
+      </p>
+
+      <div class="names">
+        <label class="field"><span>Jugador 1</span><input id="name1" type="text" maxlength="20" placeholder="Nombre"></label>
+        <label class="field"><span>Jugador 2</span><input id="name2" type="text" maxlength="20" placeholder="Nombre"></label>
+      </div>
+
+      <h3>Categorías</h3>
+      <div id="cat-list" class="chips"></div>
+
+      <p id="home-msg" class="msg" role="alert"></p>
+      <button id="btn-start" class="primary big" type="button">Jugar con las cartas</button>
+
+      <p class="or">o</p>
+
+      <button id="btn-custom" class="card-option" type="button">
+        <span class="mini-card" aria-hidden="true">?</span>
+        <span class="card-option-text">
+          <strong>Crea tus propias cartas</strong>
+          <small>Escriban sus propias preguntas, por turnos.</small>
+        </span>
+      </button>
+
+      <details class="rules">
+        <summary>Cómo se juega</summary>
+        <ol>
+          <li>Una persona lee la carta en voz alta y la otra responde con honestidad.</li>
+          <li>En cada carta se cambian los roles.</li>
+          <li>Si no quieres responder, pulsa "Pasar": en lugar de la pregunta te saldrá un reto.</li>
+          <li>En "Crea tus propias cartas", una persona escribe una pregunta, pasa el celular y la otra responde. Después se invierten.</li>
+        </ol>
+      </details>
+    </section>
+
+    <!-- ============ ESCRIBIR CARTA PROPIA ============ -->
+    <section id="screen-write" class="screen">
+      <header class="game-top">
+        <button id="btn-write-back" class="ghost" type="button">← Inicio</button>
+        <span id="write-round"></span>
+      </header>
+      <h2 id="write-title"></h2>
+      <p id="write-sub" class="lead"></p>
+      <textarea id="write-text" maxlength="220" rows="5" placeholder="Escribe una pregunta abierta…"></textarea>
+      <p id="write-msg" class="msg" role="alert"></p>
+      <button id="btn-write-done" class="primary big" type="button">Listo</button>
+    </section>
+
+    <!-- ============ PARTIDA ============ -->
+    <section id="screen-game" class="screen">
+      <header class="game-top">
+        <span id="progress"></span>
+        <button id="btn-end" class="ghost" type="button">Terminar</button>
+      </header>
+
+      <p id="turn" class="turn"></p>
+
+      <div id="card" class="card" role="button" tabindex="0" aria-label="Voltear carta">
+        <div class="card-inner">
+          <div class="card-face card-back">
+            <span class="q">?</span>
+            <small>Toca para voltear</small>
+          </div>
+          <div class="card-face card-front">
+            <span id="card-cat" class="badge"></span>
+            <p id="card-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btn-skip" class="secondary" type="button">Pasar</button>
+        <button id="btn-next" class="primary" type="button">Siguiente</button>
+      </div>
+    </section>
+
+    <!-- ============ FINAL ============ -->
+    <section id="screen-end" class="screen">
+      <h2>Terminaron</h2>
+      <p id="end-stats" class="lead"></p>
+      <button id="btn-restart" class="primary big" type="button">Volver al inicio</button>
+    </section>
+
+  </main>
+
+  <script src="cards.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
