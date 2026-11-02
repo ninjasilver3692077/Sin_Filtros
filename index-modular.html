@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8eac9">
+  <meta name="description" content="Sin Filtros: un juego de cartas para conversar, conectar y conocerse mejor.">
+  <title>Sin Filtros · El juego para hablar de verdad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght,SOFT@9..144,500,25;9..144,650,25;9..144,750,25&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <main id="app" class="shell">
+    <header class="brand-bar">
+      <a class="brand" href="#inicio" id="brand-home" aria-label="Sin Filtros, ir al inicio"><span class="brand-mark">✳</span><span>sin<span class="brand-dot">.</span>filtros</span></a>
+      <span class="brand-suffix">CONVERSACIONES REALES <span aria-hidden="true">↗</span></span>
+    </header>
+
+    <section id="screen-home" class="screen active" aria-labelledby="home-title">
+      <div class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow"><span class="sparkle" aria-hidden="true">✦</span> PARA DOS PERSONAS, SIN MÁSCARAS</span>
+          <h1 id="home-title">Hay preguntas que <em>lo cambian todo.</em></h1>
+          <p class="lead">Apaguen el piloto automático. Enciendan la conversación. Un juego de cartas para escucharse, descubrirse y conectar de verdad.</p>
+          <div class="hero-facts" aria-label="Detalles del juego">
+            <span>✳ 100 preguntas</span><span>♡ 5 categorías</span><span>∞ Sin puntuación</span>
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="deco-card deco-left"><span>02</span><b>¿Qué no te<br>he preguntado<br>todavía?</b><i>♡</i></div>
+          <div class="deco-card deco-right"><span>01</span><strong>?</strong><small>SIN FILTROS · 2026</small></div>
+          <span class="art-flower">✳</span>
+        </div>
+      </div>
+
+      <div class="panel start-panel">
+        <div class="panel-header"><div><span class="eyebrow">PRIMER PASO</span><h2>¿Quiénes van a jugar?</h2></div><span class="step-tag">01 / 02</span></div>
+        <div class="names">
+          <label class="field" for="name1"><span>Persona 1</span><input id="name1" name="name1" maxlength="20" autocomplete="off" placeholder="Tu nombre"></label>
+          <label class="field" for="name2"><span>Persona 2</span><input id="name2" name="name2" maxlength="20" autocomplete="off" placeholder="Su nombre"></label>
+        </div>
+        <div class="subheading"><div><span class="eyebrow">SEGUNDO PASO</span><h3>Elijan sus temas</h3></div><span class="step-tag">02 / 02</span></div>
+        <p class="helper">Pueden combinar todas las categorías o escoger las que más les interesen.</p>
+        <div id="cat-list" class="chips" role="group" aria-label="Categorías de preguntas"></div>
+        <div class="selection-row"><span id="selection-summary" aria-live="polite"></span><button id="btn-toggle-all" class="text-button" type="button">Deseleccionar todas</button></div>
+        <p id="home-msg" class="msg" role="alert"></p>
+        <button id="btn-start" class="primary big" type="button">Empezar a conectar <span aria-hidden="true">↗</span></button>
+        <div class="divider"><span>O CAMBIEN LAS REGLAS</span></div>
+        <button id="btn-custom" class="custom-option" type="button"><span class="custom-icon" aria-hidden="true">✎</span><span><strong>Creen sus propias cartas</strong><small>Pregúntense lo que siempre quisieron saber.</small></span><span class="custom-arrow" aria-hidden="true">↗</span></button>
+      </div>
+      <details class="how-to"><summary>¿Cómo se juega? <span aria-hidden="true">＋</span></summary><div><p>Una persona lee la pregunta y la otra responde con honestidad. En cada carta intercambian los roles.</p><p>Si una pregunta resulta incómoda, pueden pulsar <strong>Pasar</strong> y hacer un reto sencillo en su lugar. Nadie está obligado a compartir algo que no quiera.</p><p>En el modo personalizado, una persona escribe una pregunta, entrega el celular y la otra responde.</p></div></details>
+    </section>
+
+    <section id="screen-write" class="screen compact-screen" aria-labelledby="write-title">
+      <div class="game-top"><button id="btn-write-back" class="ghost" type="button">← Volver al inicio</button><span id="write-round" class="small-pill"></span></div>
+      <div class="center-intro"><span class="eyebrow">MODO PERSONALIZADO</span><h2 id="write-title"></h2><p id="write-sub" class="lead"></p></div>
+      <div class="panel"><label class="field" for="write-text"><span>Tu pregunta</span></label><textarea id="write-text" maxlength="220" rows="5" placeholder="¿Qué te gustaría preguntarle?" aria-describedby="write-count write-msg"></textarea><div class="write-meta"><span>Haz una pregunta abierta, sin respuestas correctas.</span><span id="write-count">0 / 220</span></div><p id="write-msg" class="msg" role="alert"></p><button id="btn-write-done" class="primary big" type="button">Entregar la carta ↗</button></div>
+    </section>
+
+    <section id="screen-game" class="screen compact-screen" aria-labelledby="turn">
+      <div class="game-top"><button id="btn-end" class="ghost" type="button">← Terminar partida</button><span id="progress" class="small-pill"></span></div>
+      <div class="progress-track" role="progressbar" aria-label="Progreso del juego" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track"><div id="progress-fill"></div></div>
+      <div class="center-intro game-intro"><span class="eyebrow" id="game-eyebrow">UNA PREGUNTA A LA VEZ</span><h2 id="turn"></h2><p id="game-hint" class="helper" aria-live="polite">Toca la carta para descubrir la pregunta.</p></div>
+      <div id="card" class="card" role="button" tabindex="0" aria-label="Revelar carta" aria-pressed="false"><div class="card-inner"><div class="card-face card-back"><div class="card-back-head"><span>sin.filtros</span><span>✳</span></div><span class="card-question" aria-hidden="true">?</span><span class="card-back-foot">TOCA PARA DESCUBRIR</span></div><div class="card-face card-front"><span id="card-cat" class="badge"></span><p id="card-text"></p><span class="card-front-foot">SIN FILTROS · CONVERSEM DE VERDAD</span></div></div></div>
+      <div class="actions"><button id="btn-skip" class="secondary" type="button" disabled>Pasar → reto</button><button id="btn-next" class="primary" type="button" disabled>Siguiente carta ↗</button></div>
+      <p class="game-footnote">No hay respuestas perfectas. Solo conversaciones reales. ♡</p>
+    </section>
+
+    <section id="screen-end" class="screen compact-screen" aria-labelledby="end-title"><div class="finish-star" aria-hidden="true">✳</div><div class="center-intro"><span class="eyebrow">LO IMPORTANTE FUE ESCUCHARSE</span><h2 id="end-title" class="end-title">Las buenas conversaciones no terminan aquí.</h2><p id="end-stats" class="lead"></p></div><div class="panel end-panel"><p>Gracias por abrir un espacio para conocerse mejor. Recuerden: pueden volver a jugar con otras preguntas cuando quieran.</p><button id="btn-again" class="primary big" type="button">Jugar otra ronda ↗</button><button id="btn-restart" class="ghost wide" type="button">Volver al inicio</button></div></section>
+    <footer class="site-footer"><span>SIN FILTROS © 2026</span><span>HECHO PARA CONECTAR, NO PARA COMPETIR ♡</span><button type="button" id="btn-share" class="text-button">Compartir juego ↗</button></footer>
+    <p id="share-status" class="sr-only" role="status" aria-live="polite"></p>
+  </main>
+  <script src="cards.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,107 +1,106 @@
-/*
- * LÓGICA DEL JUEGO  (archivo de la Persona B)
- * Lee CATEGORIES, CARDS y RETOS desde cards.js. No contiene texto de cartas.
- *
- * Dos modos:
- *  - "deck":   se juega con las preguntas de cards.js (según las categorías elegidas).
- *  - "custom": los jugadores escriben sus propias preguntas por turnos.
- * En ambos, si quien responde pasa, en lugar de la pregunta le sale un reto.
- */
+/* Sin Filtros 2.0 — lógica. Compatible con el cards.js original (100 cartas / 20 retos). */
 (() => {
   'use strict';
-
   const { CATEGORIES, CARDS, RETOS } = window;
-  const catById = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
-
-  const RETO_STYLE = { emoji: '🎯', nombre: 'Reto', color: '#e8d28f' };
-  const OWN_STYLE = { emoji: '✍️', nombre: 'Carta propia', color: '#d9a9a0' };
-
+  if (!Array.isArray(CATEGORIES) || !Array.isArray(CARDS) || !Array.isArray(RETOS)) {
+    document.body.textContent = 'No se cargó cards.js. Conserva el archivo original junto a index.html.';
+    return;
+  }
+  const byId = Object.fromEntries(CATEGORIES.map(cat => [cat.id, cat]));
+  const $ = selector => document.querySelector(selector);
   const state = {
-    mode: 'deck', // 'deck' | 'custom'
-    players: ['Jugador 1', 'Jugador 2'],
-    deck: [],
-    idx: 0,
-    reader: 0, // quien lee (deck) o quien escribe (custom); responde el otro
-    round: 1, // solo modo custom
-    done: 0,
-    own: null, // carta escrita (modo custom)
-    retoText: null, // texto del reto activo, o null
-    retoQueue: [],
+    mode: 'deck', players: ['Jugador 1','Jugador 2'], deck: [], idx: 0,
+    reader: 0, round: 1, done: 0, challenges: 0, own: null,
+    challenge: null, challengeQueue: [], lastChallenge: null, revealed: false,
+    selected: new Set(CATEGORIES.map(cat => cat.id)),
   };
+  const CHALLENGE_STYLE = { nombre: 'Reto', emoji: '✷', color: '#e4c982' };
+  const CUSTOM_STYLE = { nombre: 'Carta propia', emoji: '✎', color: '#b7d6bf' };
+  let paintTimer = null;
 
-  /* ---------- Utilidades ---------- */
-  const $ = (sel) => document.querySelector(sel);
-
-  function el(tag, attrs = {}, ...kids) {
-    const node = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) {
-      if (k === 'class') node.className = v;
-      else if (k === 'text') node.textContent = v;
-      else node.setAttribute(k, v);
-    }
-    kids.flat().forEach((kid) => node.append(kid));
-    return node;
-  }
-
-  function shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
+  function shuffle(items) {
+    const result = [...items];
+    for (let i = result.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+      [result[i], result[j]] = [result[j], result[i]];
     }
-    return a;
+    return result;
   }
 
-  function show(name) {
-    document.querySelectorAll('.screen').forEach((s) => {
-      s.classList.toggle('active', s.id === `screen-${name}`);
+  function show(screen) {
+    document.querySelectorAll('.screen').forEach(el => {
+      const isActive = el.id === `screen-${screen}`;
+      el.classList.toggle('active', isActive);
+      el.setAttribute('aria-hidden', String(!isActive));
     });
-    window.scrollTo(0, 0);
+    window.scrollTo({top: 0, behavior: 'instant'});
   }
 
   function readNames() {
     const names = [$('#name1').value.trim() || 'Jugador 1', $('#name2').value.trim() || 'Jugador 2'];
-    if (names[0].toLowerCase() === names[1].toLowerCase()) names[1] += ' (2)';
+    if (names[0].toLocaleLowerCase('es') === names[1].toLocaleLowerCase('es')) names[1] += ' (2)';
     return names;
   }
 
-  function nextReto() {
-    if (!state.retoQueue.length) state.retoQueue = shuffle(RETOS);
-    return state.retoQueue.pop();
+  function renderCategories() {
+    const container = $('#cat-list');
+    container.replaceChildren();
+    CATEGORIES.forEach(cat => {
+      const label = document.createElement('label');
+      label.className = 'chip';
+      label.style.setProperty('--c', cat.color);
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.value = cat.id;
+      input.checked = state.selected.has(cat.id);
+      input.addEventListener('change', () => {
+        if (input.checked) state.selected.add(cat.id);
+        else state.selected.delete(cat.id);
+        renderCategorySummary();
+      });
+      const text = document.createElement('span');
+      text.textContent = `${cat.emoji} ${cat.nombre}`;
+      const number = document.createElement('small');
+      number.textContent = `${CARDS.filter(card => card.cat === cat.id).length}`;
+      text.append(number);
+      label.append(input, text);
+      container.append(label);
+    });
+    renderCategorySummary();
   }
 
-  /* ---------- Inicio ---------- */
-  function renderCats() {
-    const box = $('#cat-list');
-    box.replaceChildren();
-    CATEGORIES.forEach((cat) => {
-      const n = CARDS.filter((c) => c.cat === cat.id).length;
-      const input = el('input', { type: 'checkbox', value: cat.id, checked: '' });
-      box.append(
-        el('label', { class: 'chip', title: cat.descripcion, style: `--c:${cat.color}` },
-          input,
-          el('span', {}, `${cat.emoji} ${cat.nombre} `, el('small', { text: `(${n})` })))
-      );
-    });
+  function renderCategorySummary() {
+    const total = CARDS.filter(card => state.selected.has(card.cat)).length;
+    $('#selection-summary').textContent = `${state.selected.size} de ${CATEGORIES.length} temas · ${total} preguntas`;
+    $('#btn-toggle-all').textContent = state.selected.size === CATEGORIES.length ? 'Deseleccionar todas' : 'Seleccionar todas';
+    $('#home-msg').textContent = '';
+  }
+
+  function toggleAll() {
+    state.selected = state.selected.size === CATEGORIES.length ? new Set() : new Set(CATEGORIES.map(c => c.id));
+    renderCategories();
   }
 
   function resetRun() {
+    clearTimeout(paintTimer);
     state.idx = 0;
     state.reader = 0;
     state.round = 1;
     state.done = 0;
+    state.challenges = 0;
     state.own = null;
-    state.retoText = null;
+    state.challenge = null;
+    state.revealed = false;
+    state.challengeQueue = [];
+    state.lastChallenge = null;
   }
 
   function startDeck() {
-    const cats = [...document.querySelectorAll('#cat-list input:checked')].map((i) => i.value);
-    const deck = shuffle(CARDS.filter((c) => cats.includes(c.cat)));
+    const deck = shuffle(CARDS.filter(card => state.selected.has(card.cat)));
     if (!deck.length) {
-      $('#home-msg').textContent = 'Elige al menos una categoría.';
+      $('#home-msg').textContent = 'Selecciona al menos una categoría para comenzar.';
       return;
     }
-    $('#home-msg').textContent = '';
     resetRun();
     state.mode = 'deck';
     state.players = readNames();
@@ -111,22 +110,21 @@
   }
 
   function startCustom() {
-    $('#home-msg').textContent = '';
     resetRun();
     state.mode = 'custom';
     state.players = readNames();
     openWrite();
   }
 
-  /* ---------- Modo cartas propias: escribir ---------- */
   function openWrite() {
     const writer = state.players[state.reader];
     const other = state.players[1 - state.reader];
     $('#write-round').textContent = `Ronda ${state.round}`;
-    $('#write-title').textContent = `Turno de ${writer}`;
-    $('#write-sub').textContent = `Escribe una pregunta abierta para ${other}. ${other}, ¡no mires!`;
-    $('#btn-write-done').textContent = `Listo: pasar el celular a ${other}`;
+    $('#write-title').textContent = `Tu turno, ${writer}.`;
+    $('#write-sub').textContent = `Escribe una pregunta para ${other}. Después pasa el celular para que la descubra.`;
+    $('#btn-write-done').textContent = `Entregar a ${other} ↗`;
     $('#write-text').value = '';
+    $('#write-count').textContent = '0 / 220';
     $('#write-msg').textContent = '';
     show('write');
   }
@@ -135,78 +133,104 @@
     const text = $('#write-text').value.trim();
     if (!text) {
       $('#write-msg').textContent = 'Escribe una pregunta antes de continuar.';
+      $('#write-text').focus();
       return;
     }
     state.own = { texto: text };
-    state.retoText = null;
+    state.challenge = null;
     renderGame();
     show('game');
   }
 
-  /* ---------- Partida ---------- */
-  const current = () => (state.mode === 'deck' ? state.deck[state.idx] : state.own);
+  function getChallenge() {
+    if (!RETOS.length) return 'Comparte algo que admires de la otra persona.';
+    if (!state.challengeQueue.length) {
+      state.challengeQueue = shuffle(RETOS);
+      if (state.challengeQueue.length > 1 && state.challengeQueue[state.challengeQueue.length - 1] === state.lastChallenge) {
+        [state.challengeQueue[0], state.challengeQueue[state.challengeQueue.length - 1]] =
+        [state.challengeQueue[state.challengeQueue.length - 1], state.challengeQueue[0]];
+      }
+    }
+    state.lastChallenge = state.challengeQueue.pop();
+    return state.lastChallenge;
+  }
 
-  let paintToken = 0;
+  function current() { return state.mode === 'deck' ? state.deck[state.idx] : state.own; }
+
+  function setRevealed(revealed) {
+    state.revealed = revealed;
+    const card = $('#card');
+    card.classList.toggle('flipped', revealed);
+    card.setAttribute('aria-pressed', String(revealed));
+    card.setAttribute('aria-label', revealed ? 'Carta revelada' : 'Revelar carta');
+    $('#btn-next').disabled = !revealed;
+    $('#btn-skip').disabled = !revealed;
+    $('#game-hint').textContent = revealed ? 'Tómense su tiempo para conversar.' : 'Toca la carta para descubrir la pregunta.';
+  }
 
   function renderGame() {
+    clearTimeout(paintTimer);
     const card = current();
+    if (!card) return finishGame();
+    const isChallenge = state.challenge !== null;
+    const style = isChallenge ? CHALLENGE_STYLE : state.mode === 'custom' ? CUSTOM_STYLE : byId[card.cat] || CUSTOM_STYLE;
+    const text = isChallenge ? state.challenge : card.texto;
     const reader = state.players[state.reader];
-    const answerer = state.players[1 - state.reader];
-    const isReto = state.retoText !== null;
-    const style = isReto ? RETO_STYLE : state.mode === 'custom' ? OWN_STYLE : catById[card.cat];
-    const text = isReto ? state.retoText : card.texto;
-
-    $('#progress').textContent =
-      state.mode === 'deck' ? `Carta ${state.idx + 1} de ${state.deck.length}` : `Ronda ${state.round}`;
-
-    $('#turn').textContent = isReto
-      ? `${answerer}, ¡te toca un reto!`
-      : state.mode === 'deck'
-        ? `Lee ${reader} · responde ${answerer}`
-        : `${reader} preguntó · responde ${answerer}`;
-
-    const cardEl = $('#card');
-    const token = ++paintToken;
+    const respondent = state.players[1 - state.reader];
+    const max = state.mode === 'deck' ? state.deck.length : Math.max(1, state.round);
+    const currentNumber = state.mode === 'deck' ? state.idx + 1 : state.round;
+    const percent = state.mode === 'deck' ? Math.round(state.idx / max * 100) : 0;
+    $('#progress').textContent = state.mode === 'deck' ? `Carta ${currentNumber} / ${max}` : `Ronda ${state.round}`;
+    $('#progress-track').setAttribute('aria-valuenow', String(percent));
+    $('#progress-fill').style.width = `${percent}%`;
+    $('#game-eyebrow').textContent = isChallenge ? 'EL RETO DEL MOMENTO' : state.mode === 'deck' ? 'UNA PREGUNTA A LA VEZ' : 'UNA PREGUNTA HECHA POR USTEDES';
+    $('#turn').textContent = isChallenge ? `¡Te toca, ${respondent}!` : `${reader} pregunta. ${respondent} responde.`;
+    $('#card').style.setProperty('--card-color', style.color);
+    $('#btn-skip').hidden = isChallenge;
+    $('#btn-next').textContent = isChallenge ? 'Reto cumplido ✓' : 'Siguiente carta ↗';
+    setRevealed(false);
+    // Retrasar el contenido si la carta estaba al frente evita mostrar la siguiente pregunta durante el giro.
     const paint = () => {
-      if (token !== paintToken) return;
-      cardEl.style.setProperty('--c', style.color);
       $('#card-cat').textContent = `${style.emoji} ${style.nombre}`;
       $('#card-text').textContent = text;
     };
-
-    if (isReto) {
-      // el reto reemplaza a la pregunta en la misma carta, ya volteada
+    paintTimer = setTimeout(paint, 310);
+    if (isChallenge) {
       paint();
-      cardEl.classList.add('flipped');
-    } else {
-      const wasFlipped = cardEl.classList.contains('flipped');
-      cardEl.classList.remove('flipped');
-      // esperamos a que gire de vuelta para no dejar ver el texto nuevo antes de tiempo
-      if (wasFlipped) setTimeout(paint, 300);
-      else paint();
+      clearTimeout(paintTimer);
+      setRevealed(true);
+      $('#btn-skip').disabled = true;
+      $('#game-hint').textContent = 'Siéntanse libres de adaptar el reto a su comodidad.';
     }
-
-    $('#btn-skip').hidden = isReto;
-    $('#btn-skip').textContent = 'Pasar (haré un reto)';
-    $('#btn-next').textContent = isReto ? 'Reto cumplido ✓' : 'Siguiente';
   }
 
   function flip() {
-    $('#card').classList.toggle('flipped');
+    // La carta revelada no vuelve a ocultarse: evita accidentalmente tapar la pregunta.
+    if (!state.revealed) {
+      clearTimeout(paintTimer);
+      const card = current();
+      const style = state.mode === 'custom' ? CUSTOM_STYLE : byId[card.cat] || CUSTOM_STYLE;
+      $('#card-cat').textContent = `${style.emoji} ${style.nombre}`;
+      $('#card-text').textContent = card.texto;
+      setRevealed(true);
+    }
   }
 
   function skip() {
-    state.retoText = nextReto();
+    if (!state.revealed || state.challenge !== null) return;
+    state.challenge = getChallenge();
+    state.challenges++;
     renderGame();
   }
 
   function next() {
+    if (!state.revealed) return;
     state.done++;
-    state.retoText = null;
+    state.challenge = null;
     state.reader = 1 - state.reader;
     if (state.mode === 'deck') {
       state.idx++;
-      if (state.idx >= state.deck.length) return showEnd();
+      if (state.idx >= state.deck.length) return finishGame();
       renderGame();
     } else {
       state.round++;
@@ -214,38 +238,59 @@
     }
   }
 
-  /* ---------- Final ---------- */
-  function showEnd() {
-    const n = state.done;
-    $('#end-stats').textContent =
-      n === 0
-        ? 'Todavía no jugaron ninguna carta.'
-        : `Jugaron ${n} ${n === 1 ? 'carta' : 'cartas'}. ¡Gracias por ser honestos!`;
+  function finishGame() {
+    $('#progress-fill').style.width = '100%';
+    const cards = state.done;
+    const challenges = state.challenges;
+    $('#end-stats').textContent = cards
+      ? `Compartieron ${cards} ${cards === 1 ? 'carta' : 'cartas'}${challenges ? ` y realizaron ${challenges} ${challenges === 1 ? 'reto' : 'retos'}` : ''}. ¡Qué buena conexión!`
+      : 'Una buena conversación puede comenzar cuando quieran.';
     show('end');
   }
 
-  function backHome() {
-    renderCats();
-    show('home');
+  function again() {
+    if (state.mode === 'deck') {
+      resetRun();
+      state.deck = shuffle(CARDS.filter(card => state.selected.has(card.cat)));
+      renderGame();
+      show('game');
+    } else {
+      resetRun();
+      openWrite();
+    }
   }
 
-  /* ---------- Eventos ---------- */
+  function backHome() { resetRun(); show('home'); }
+  async function share() {
+    if (!/^https?:$/.test(window.location.protocol)) {
+      $('#share-status').textContent = 'Publica el juego en GitHub Pages para compartir un enlace.';
+      window.alert('Publica el juego en GitHub Pages para compartir un enlace.');
+      return;
+    }
+    try {
+      if (navigator.share) await navigator.share({ title: 'Sin Filtros', text: '¿Jugamos Sin Filtros?', url: window.location.href });
+      else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(window.location.href);
+        $('#share-status').textContent = 'Enlace copiado al portapapeles.';
+        window.alert('¡Enlace copiado!');
+      }
+    } catch (error) { if (error.name !== 'AbortError') $('#share-status').textContent = 'No se pudo compartir el enlace.'; }
+  }
+
   $('#btn-start').addEventListener('click', startDeck);
   $('#btn-custom').addEventListener('click', startCustom);
+  $('#btn-toggle-all').addEventListener('click', toggleAll);
   $('#btn-write-done').addEventListener('click', finishWrite);
   $('#btn-write-back').addEventListener('click', backHome);
+  $('#write-text').addEventListener('input', event => $('#write-count').textContent = `${event.target.value.length} / 220`);
   $('#btn-next').addEventListener('click', next);
   $('#btn-skip').addEventListener('click', skip);
-  $('#btn-end').addEventListener('click', showEnd);
+  $('#btn-end').addEventListener('click', finishGame);
+  $('#btn-again').addEventListener('click', again);
   $('#btn-restart').addEventListener('click', backHome);
-
+  $('#brand-home').addEventListener('click', event => { event.preventDefault(); backHome(); });
+  $('#btn-share').addEventListener('click', share);
   $('#card').addEventListener('click', flip);
-  $('#card').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      flip();
-    }
-  });
-
-  renderCats();
+  $('#card').addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); flip(); } });
+  renderCategories();
 })();

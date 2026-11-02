@@ -1,0 +1,15 @@
+SIN FILTROS - VERSIÓN CORREGIDA
+
+PROBLEMA ARREGLADO:
+Antes, al abrir index.html desde el ZIP de Windows, se cargaba el HTML sin style.css, cards.js y app.js. Se veía sin formato y sin categorías.
+
+PARA JUGAR YA:
+- Abre index.html. Ahora incluye todo el CSS, las 100 preguntas, los 20 retos y la lógica. Funciona incluso sin extraer el ZIP.
+- También puedes descargar directamente Sin_Filtros_JUGAR.html y abrirlo.
+
+PARA SUBIR A GITHUB:
+- Reemplaza el index.html anterior por este index.html autocontenido.
+- Los archivos style.css, cards.js y app.js se incluyen también como originales editables del equipo. IMPORTANTE: el index.html autocontenido no lee esos archivos; si los actualizas después, hay que regenerar index.html para incorporar los cambios.
+- Como alternativa, para desarrollo colaborativo con cambios frecuentes, utiliza index-modular.html (renómbralo index.html) y mantén en la misma carpeta los archivos style.css, cards.js y app.js. En ese caso debes extraer el ZIP antes de abrirlo en Windows.
+
+NINGUNA PREGUNTA NI RETO SE MODIFICÓ PARA CORREGIR ESTO.
