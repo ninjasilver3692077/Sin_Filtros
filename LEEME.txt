@@ -1,0 +1,15 @@
+SIN FILTROS · ENTREGA PARA GITHUB
+
+Esta carpeta contiene el juego completo en archivos editables.
+Sube SOLO los cinco archivos de la raíz a la raíz del repositorio Sin_Filtros.
+- index.html: nueva interfaz visual
+- style.css: todos los estilos
+- app.js: lógica del juego
+- cards.js: 100 preguntas, 20 retos y 5 categorías
+- favicon.svg: icono
+
+IMPORTANTE: para abrirlo en el computador, primero extrae TODO el ZIP.
+No abras el index.html directamente desde dentro del ZIP.
+
+No borres la carpeta capturas ni el README del repositorio original.
+Antes de sustituir archivos, haz una copia de la rama main o trabaja en una nueva rama.
