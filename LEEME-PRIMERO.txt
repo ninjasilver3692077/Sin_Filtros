@@ -1,4 +1,4 @@
-SIN FILTROS - VERSIÓN CORREGIDA
+HABLEMOS - VERSIÓN CORREGIDA
 
 PROBLEMA ARREGLADO:
 Antes, al abrir index.html desde el ZIP de Windows, se cargaba el HTML sin style.css, cards.js y app.js. Se veía sin formato y sin categorías.

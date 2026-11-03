@@ -1,5 +1,5 @@
 /**
- * Sin Filtros · Contenido revisado (Persona A)
+ * Hablemos · Contenido revisado (Persona A)
  * 100 preguntas: 20 por categoría + 20 retos.
  * Lenguaje conversacional, preguntas abiertas y respeto a los límites.
  * Se mantienen los identificadores de categorías y el contrato de app.js.

@@ -1,4 +1,4 @@
-# Sin filtros — juego de cartas digital para parejas
+# Hablemos — juego de cartas digital para parejas
 
 Juego web para dos personas. Una lee una pregunta abierta y la otra responde de forma honesta; en cada carta se cambian los roles. Sin instalación y sin backend: HTML + CSS + JS puro.
 

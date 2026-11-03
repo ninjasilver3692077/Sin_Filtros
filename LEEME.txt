@@ -1,4 +1,4 @@
-SIN FILTROS · ENTREGA PARA GITHUB
+HABLEMOS · ENTREGA PARA GITHUB
 
 Esta carpeta contiene el juego completo en archivos editables.
 Sube SOLO los cinco archivos de la raíz a la raíz del repositorio Sin_Filtros.

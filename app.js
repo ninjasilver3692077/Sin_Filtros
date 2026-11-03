@@ -1,4 +1,4 @@
-/* Sin Filtros 2.0 — lógica. Compatible con el cards.js original (100 cartas / 20 retos). */
+/* Hablemos 2.0 — lógica. Compatible con el cards.js original (100 cartas / 20 retos). */
 (() => {
   'use strict';
   const { CATEGORIES, CARDS, RETOS } = window;
@@ -268,7 +268,7 @@
       return;
     }
     try {
-      if (navigator.share) await navigator.share({ title: 'Sin Filtros', text: '¿Jugamos Sin Filtros?', url: window.location.href });
+      if (navigator.share) await navigator.share({ title: 'Hablemos', text: '¿Jugamos Hablemos?', url: window.location.href });
       else if (navigator.clipboard) {
         await navigator.clipboard.writeText(window.location.href);
         $('#share-status').textContent = 'Enlace copiado al portapapeles.';

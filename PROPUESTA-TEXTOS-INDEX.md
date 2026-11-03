@@ -4,7 +4,7 @@
 
 ## Título e introducción
 
-- Encabezado: **Sin filtros**
+- Encabezado: **Hablemos**
 - Título de portada: **Hay preguntas que nos acercan.**
 - Introducción propuesta: *Un juego para dos personas que quieren conocerse mejor. Elijan un tema, volteen una carta y conversen sin prisas ni respuestas perfectas.*
 - Botón principal: **Empezar a jugar ↗**
@@ -19,7 +19,7 @@
 
 ## Pie de página
 
-*Sin Filtros · Conversaciones para conocerse, no para competir.*
+*Hablemos · Conversaciones para conocerse, no para competir.*
 
 ## Incluir favicon
 

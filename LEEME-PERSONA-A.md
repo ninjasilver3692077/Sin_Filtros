@@ -1,4 +1,4 @@
-# Sin Filtros — Entrega de Persona A
+# Hablemos — Entrega de Persona A
 
 **Responsable:** contenido y diseño. **Alcance:** `cards.js`, `style.css`, `favicon.svg`, textos propuestos y capturas.
 
@@ -42,7 +42,7 @@ Comandos orientativos:
 ```bash
 git switch -c feat/contenido-diseno
 git add cards.js style.css favicon.svg
-git commit -m "feat: revisar preguntas, retos e identidad visual de Sin Filtros"
+git commit -m "feat: revisar preguntas, retos e identidad visual de Hablemos"
 git push -u origin feat/contenido-diseno
 ```
 
